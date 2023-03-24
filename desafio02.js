@@ -17,7 +17,6 @@ class ProductManager {
     try {
       const products = await fs.readFile(this.path, "utf-8");
       if (products) return JSON.parse(products);
-      return [];
     } catch (error) {
       console.log(error);
       return [];
@@ -52,13 +51,20 @@ class ProductManager {
     await fs.writeFile(this.path, JSON.stringify(this.products));
   }
 
-  getProductById(idProduct) {
-    const productExist = this.products.find(
+    async getProductById(idProduct) {
+    
+    try{
+        const products= await fs.readFile(this.path,'utf-8');
+    
+    const productsParsed = JSON.parse(products);    
+    const productExist = productsParsed.find(
       (product) => product?.id === idProduct
     );
-
-    if (productExist) return productExist;
-    else throw Error("This product no exist");
+    return productExist
+    }catch(error)
+    {console.log(error);
+    throw new Error("This product no exist");
+    }
   }
 
   async updateProduct(productChange) {
@@ -88,7 +94,7 @@ class ProductManager {
 const main = async () => {
   const listProducts = new ProductManager();
 
-  console.log(listProducts.getProducts());
+  console.log(await listProducts.getProducts());
 
   await listProducts.loadData();
 
@@ -103,7 +109,7 @@ const main = async () => {
 
   console.log(await listProducts.getProducts());
 
-  console.log(listProducts.getProductById(0));
+ console.log(await listProducts.getProductById(0));
   console.log(
     await listProducts.updateProduct({
       id: 0,

@@ -68,7 +68,7 @@ class ProductManager {
 
   async updateProduct(productChange) {
     const product = await this.getProductById(productChange.id);
-    if (!product) throw new Error("This product no exist update");
+    if (!product) throw new Error("This product no exist");
 
     if (productChange.title) product.title = productChange.title;
     if (productChange.description)
@@ -102,7 +102,7 @@ const main = async () => {
     description: "Este es un producto prueba",
     price: 200,
     thumbnail: "Sin imagen",
-    code: "ac1",
+    code: "abc123",
     stock: 25,
   });
 

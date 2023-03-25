@@ -18,7 +18,8 @@ class ProductManager {
       const products = await fs.readFile(this.path, "utf-8");
       if (products) return JSON.parse(products);
     } catch (error) {
-      console.log(error);
+      console.log(`El archivo ${this.path} no existe, creando...`);
+      await fs.writeFile(this.path, "[]");
       return [];
     }
   }
@@ -51,24 +52,23 @@ class ProductManager {
     await fs.writeFile(this.path, JSON.stringify(this.products));
   }
 
-    async getProductById(idProduct) {
-    
-    try{
-        const products= await fs.readFile(this.path,'utf-8');
-    
-    const productsParsed = JSON.parse(products);    
-    const productExist = productsParsed.find(
-      (product) => product?.id === idProduct
-    );
-    return productExist
-    }catch(error)
-    {console.log(error);
-    throw new Error("This product no exist");
+  async getProductById(idProduct) {
+    try {
+      const products = await fs.readFile(this.path, "utf-8");
+      const productsParsed = JSON.parse(products);
+      const productExist = productsParsed.find(
+        (product) => product?.id === idProduct
+      );
+      return productExist;
+    } catch (error) {
+      console.log(error);
+      throw new Error("This product no exist");
     }
   }
 
   async updateProduct(productChange) {
-    const product = this.getProductById(productChange.id);
+    const product = await this.getProductById(productChange.id);
+    if (!product) throw new Error("This product no exist update");
 
     if (productChange.title) product.title = productChange.title;
     if (productChange.description)
@@ -87,7 +87,6 @@ class ProductManager {
   async deleteProduct(id) {
     delete this.products[id];
     await fs.writeFile(this.path, JSON.stringify(this.products));
-    if (!id) throw Error("This product no exist");
   }
 }
 
@@ -103,13 +102,14 @@ const main = async () => {
     description: "Este es un producto prueba",
     price: 200,
     thumbnail: "Sin imagen",
-    code: "abc123",
+    code: "ac1",
     stock: 25,
   });
 
   console.log(await listProducts.getProducts());
 
- console.log(await listProducts.getProductById(0));
+  console.log(await listProducts.getProductById(0));
+
   console.log(
     await listProducts.updateProduct({
       id: 0,
